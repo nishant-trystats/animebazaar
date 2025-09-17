@@ -1,39 +1,57 @@
 import React, { useState, useEffect } from "react";
-
-// Your image URLs here
-const allImages = [
-  "https://wallpapercave.com/wp/wp2568896.jpg",
-  "https://images8.alphacoders.com/115/1155290.jpg",
-  "https://wallpapercave.com/wp/wp6907749.jpg",
-  "https://images2.alphacoders.com/111/1116306.jpg",
-  "https://wallpapercave.com/wp/wp2585886.jpg",
-  "https://wallpapercave.com/wp/wp9155410.jpg",
-  "https://wallpaperaccess.com/full/1747191.jpg",
-  "https://images8.alphacoders.com/117/1176380.jpg",
-  "https://cdn.wallpapersafari.com/69/93/lz5NMI.jpg",
-  "https://wallpapercave.com/wp/wp4636915.jpg",
-  "https://wallpaperaccess.com/full/317501.jpg",
-  "https://images4.alphacoders.com/101/1018898.jpg",
-  "https://wallpapercave.com/wp/wp11557460.jpg",
-  "https://wallpapercave.com/wp/wp4561390.jpg",
-  "https://rare-gallery.com/mushishi.jpg",  // example, check correct URL
-];
-
-
-const getRandomImages = (count: number) => {
-  const shuffled = [...allImages].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
-};
+import getNRandomImages from "../utils/getRandomImages";
 
 const RandomImageGrid: React.FC = () => {
+  const [fetchedImages, setFetchedImages] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+ const randomimage = (array: string[]): string[] => {
+  const uniqueImages = new Set<string>();
+
+  // Prevent infinite loop if array has fewer items than 15
+  const maxCount = Math.min(15, array.length);
+
+  while (uniqueImages.size < maxCount) {
+    const random = array[Math.floor(Math.random() * array.length)];
+    uniqueImages.add(random);
+  }
+
+  return Array.from(uniqueImages);
+};
+
 
   useEffect(() => {
-    setImages(getRandomImages(15));
+    const fetchImages = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const Nimages = await getNRandomImages(75);
+        setFetchedImages(Nimages);
+
+        setImages(randomimage(Nimages));
+      } catch (err) {
+        setError("Failed to load images.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchImages();
   }, []);
 
-  const refreshImages = () => {
-    setImages(getRandomImages(15));
+  const refreshImages = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // const fetchedImages = await getNRandomImages(15);
+      setImages(randomimage(fetchedImages));
+    } catch (err) {
+      setError("Failed to load images.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -49,17 +67,25 @@ const RandomImageGrid: React.FC = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {images.map((url, index) => (
-            <div key={index} className="overflow-hidden rounded shadow-lg">
-              <img
-                src={url}
-                alt={`Anime ${index}`}
-                className="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          ))}
-        </div>
+        {loading && <p>Loading images...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+
+        {!loading && !error && images.length > 0 && (
+<div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4">
+  {images.map((url, index) => (
+    <img
+      key={index}
+      src={url}
+      alt={`Image ${index + 1}`}
+      loading="lazy"
+      className="mb-4 rounded shadow-lg w-full"
+    />
+  ))}
+</div>
+
+        )}
+
+        {!loading && !error && images.length === 0 && <p>No images found.</p>}
       </div>
     </section>
   );
