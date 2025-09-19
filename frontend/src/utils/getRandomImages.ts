@@ -1,11 +1,11 @@
-import { pexelapikey } from './key';
+
 
 // Fetch curated images from Pexels API
 const getImages = async (count: number): Promise<any> => {
   const response = await fetch(`https://api.pexels.com/v1/curated?per_page=${count}`, {
     method: 'GET',
     headers: {
-      'Authorization': pexelapikey,
+      'Authorization': 'A8zEnGNHoyf6TebHw5CIV0hBKqoc712a0GkzdHVLd0TSVYFduLaca9aE',
     },
   });
 
