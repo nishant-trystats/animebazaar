@@ -3,6 +3,7 @@ import Header from './components/header'
 import SearchBar from './components/searchbar'
 import RandomImageGrid from './components/imagesection'
 import HeroSection from './components/hero'
+import Footer from './components/footer'
 function App() {
 
   return (
@@ -11,8 +12,8 @@ function App() {
       <HeroSection />
       <SearchBar />
       <RandomImageGrid />
-
-      <h1>working</h1>
+      <Footer />
+      {/* <h1>working</h1> */}
     </>
   )
 }
