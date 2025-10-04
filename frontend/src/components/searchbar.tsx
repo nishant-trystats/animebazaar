@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import RandomImageGrid from '../components/imagesection'
 
 const suggestedKeywords = [
   "strategy",
@@ -13,6 +14,7 @@ const suggestedKeywords = [
 const SearchBar: React.FC = () => {
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [finalSearchQuery,setfinalSearchQuery] = useState<string|null>(null);
 
   const handleSearch = () => {
     if (query.trim() === "") return;
@@ -24,6 +26,7 @@ const SearchBar: React.FC = () => {
     });
 
     console.log("Search for:", query);
+    setfinalSearchQuery(query);
     setQuery(""); // Clear input after search
   };
 
@@ -92,7 +95,11 @@ const SearchBar: React.FC = () => {
           </div>
         )}
       </div>
+
+      <RandomImageGrid searchQuery={finalSearchQuery} />
+
     </div>
+
   );
 };
 

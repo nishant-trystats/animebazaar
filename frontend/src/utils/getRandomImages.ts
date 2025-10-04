@@ -1,31 +1,41 @@
+export default async function getNRandomImages(
+  count: number,
+  query?: string|null
+): Promise<string[]> {
+  const API_KEY = "A8zEnGNHoyf6TebHw5CIV0hBKqoc712a0GkzdHVLd0TSVYFduLaca9aE";
+  const BASE_URL = "https://api.pexels.com/v1";
 
+  // Choose endpoint based on whether a search query exists
+  const endpoint = query
+    ? `${BASE_URL}/search?query=${encodeURIComponent(query)}&per_page=${count}`
+    : `${BASE_URL}/curated?per_page=${count}`;
 
-// Fetch curated images from Pexels API
-const getImages = async (count: number): Promise<any> => {
-  const response = await fetch(`https://api.pexels.com/v1/curated?per_page=${count}`, {
-    method: 'GET',
-    headers: {
-      'Authorization': 'A8zEnGNHoyf6TebHw5CIV0hBKqoc712a0GkzdHVLd0TSVYFduLaca9aE',
-    },
-  });
+  try {
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        Authorization: API_KEY,
+      },
+    });
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch images: ${response.statusText}`);
-  }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch images: ${response.statusText}`);
+    }
 
-  return await response.json();
-};
+    const data = await response.json();
 
-// Extract image URLs and return them as an array of strings
-export default async function getNRandomImages(count: number): Promise<string[]> {
-  const data = await getImages(count);
+    if (!data?.photos?.length) {
+      return [];
+    }
 
-  if (!data || !data.photos) {
+    // Extract landscape or original image URLs
+    const imageUrls = data.photos.map(
+      (photo: any) => photo.src?.landscape || photo.src?.original 
+    );
+
+    return imageUrls;
+  } catch (error) {
+    console.error("Error fetching images:", error);
     return [];
   }
-
-  // Extract the landscape image URLs
-  const imageUrls = data.photos.map((photo: any) => photo.src?.original|| photo.src?.landscape );
-
-  return imageUrls;
 }
